@@ -1,10 +1,13 @@
 class CV{
-    constructor(name, surname, skills, education, work){
+    constructor(name, surname, skills, education, work, bio, num, mail){
         this.name = name;
         this.surname = surname;
         this.skills = skills;
         this.education = education;
         this.work = work;
+        this.bio = bio;
+        this.number= num;
+        this.email=mail;
     }
 
     get Name() {return this.name;}

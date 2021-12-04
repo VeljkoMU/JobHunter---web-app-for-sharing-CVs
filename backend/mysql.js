@@ -6,9 +6,14 @@ const connectionDB = mysql.createConnection({
     port: 3360,
     user: 'root',
     password: 'crusider23',
-    database: 'extest'
+    database: 'cv_projekat'
 });
 
 connectionDB.ping((err)=>console.log("Connected to db!"));
+
+connectionDB.query("select * from users;", (e, r, f)=> {
+    console.log(e);
+    console.log(r);
+});
 
 module.exports = connectionDB;

@@ -4,7 +4,7 @@ class User{
     constructor(username){
         this.username = username;
         this.password;
-
+        this.cv;
     }
 
     get Username(){
