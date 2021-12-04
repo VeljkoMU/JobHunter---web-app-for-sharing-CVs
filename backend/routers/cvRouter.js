@@ -194,10 +194,10 @@ async function addSkillsToCv(skills, cvId, res){
         values (${cvId}, ${skillId});
     `;
 
-    skills.forEach((s)=>{
+    await skills.forEach( async (s)=>{
         skill = s;
 
-        await sql.query(sqlGetSkillId, (err, result, f)=>{
+        await sql.query(sqlGetSkillId, async (err, result, f)=>{
             if(err){
                 console.log(err);
                 res.status(500).end();
@@ -205,7 +205,7 @@ async function addSkillsToCv(skills, cvId, res){
             }
 
             if(result.length===0){
-                await  sql.query(sqlInsertSkill, (err, resultSkill, f)=>{
+                await  sql.query(sqlInsertSkill, async (err, resultSkill, f)=>{
                     if(err){
                         console.log(err);
                         res.status(500).end();
