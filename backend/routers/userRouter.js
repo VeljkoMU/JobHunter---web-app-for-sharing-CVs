@@ -41,11 +41,35 @@ userRouter.post("/login", async (req, res)=>{
 
 
 
-userRouter.delete("/deleteUser", (req, res)=>{
+userRouter.delete("/deleteUser", async (req, res)=>{
     //Nadji user-a
     //Nadji cv usera
     //Proveri prava pristupa
     //Obrisi
+
+    if(!req.session.authorized){
+        res.status(401).end();
+        return;
+    }
+
+    await sql.query(`select * from user where ${req.session.username}`, async (err, results, f)=>{
+        if(err){
+            console.log(err);
+            res.status(500).end();
+            return;
+        }
+
+        username = results[0].username;
+        cvId = results[0].cv;
+
+        await sql.query(`delete from has_skill where cv = ${svId}`);
+        await sql.query(`delete from cv where id = ${cvId}`);
+        await sql.query(`delete from user where username = ${username}`);
+
+        res.status(200).end();
+        return;
+    });
+    
 });
 
 userRouter.post("/register", async (req,res)=>{
