@@ -38,8 +38,6 @@ app.use(session({
 app.use("/users", userRouter);
 app.use("/", cvRouter);
 
-mysql.query("SELECT cv.name, cv.surname, cv.biography, cv.education, cv.employment_history, cv.email, cv.phone_number FROM CV INNER JOIN category ON category.ID = cv.category WHERE category.NAME = \"it\";",
-(err, rows, f)=>console.log(rows));
 
 // Pali server
 app.listen(5500, ()=>console.log("Listening on port: " + 5500));
