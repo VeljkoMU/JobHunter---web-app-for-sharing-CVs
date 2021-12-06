@@ -15,7 +15,7 @@ cvRouter.get("/category", async (req,res)=>{
     }
     sqlQuery = `
     SELECT cv.name, cv.surname, cv.biography, cv.education, cv.employment_history, cv.email, cv.phone_number 
-    FROM CV JOIN category ON category.ID
+    FROM CV  INNER JOIN category ON category.ID = CV.category
     WHERE category.NAME = "${cat}";  
     `;
 
@@ -46,7 +46,7 @@ cvRouter.put("/submit", async (req, res)=>{
     }
 
     // Provera da li dati user vec ima cv
-    await sql.query(`select cv.id from cv join user on cv.id where username= ${req.session.user}`, (err, rows, fileds)=>{
+    await sql.query(`select cv.id from cv  inner join users on cv.id = users.cv where users.username= ${req.session.user}`, (err, rows, fileds)=>{
         if(rows.length!=0)
             existringCv = rows[0];
     });
