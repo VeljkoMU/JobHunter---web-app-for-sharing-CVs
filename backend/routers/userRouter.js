@@ -55,7 +55,7 @@ userRouter.delete("/deleteUser", async (req, res)=>{
         return;
     }
 
-    await sql.query(`select * from user where ${req.session.username}`, async (err, results, f)=>{
+    await sql.query(`select * from user where username = "${req.session.user}"`, async (err, results, f)=>{
         if(err){
             console.log(err);
             res.status(500).end();
@@ -65,10 +65,11 @@ userRouter.delete("/deleteUser", async (req, res)=>{
         username = results[0].username;
         cvId = results[0].cv;
 
-        await sql.query(`delete from has_skill where cv = ${svId}`);
-        await sql.query(`delete from cv where id = ${cvId}`);
-        await sql.query(`delete from user where username = ${username}`);
-
+        await sql.query(`delete from has_skill where cv = ${cvId}`, async (err ,r, f)=>{
+            await sql.query(`delete from cv where id = ${cvId}`, async (error, res, fil)=>{
+                await sql.query(`delete from user where username = "${username}"`);
+            });
+        });
         res.status(200).end();
         return;
     });
