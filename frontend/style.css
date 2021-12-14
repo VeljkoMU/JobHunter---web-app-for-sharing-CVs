@@ -10,18 +10,27 @@
 
 #login input {
     max-height: 20px;
+    box-sizing: border-box;
+    width: 100%;
+    margin-right: 5px;
+    display: flex;
+    justify-content: center;
 }
 
 #search_bar {
     
     margin:auto;
-    width: 99%;
+    width: 90%;
     margin-top: 10px;
+    margin-left: 30px;
+    box-sizing: border-box;
+    
 }
 
 body {
     padding: 0;
     margin: 0;
+    background-color: #FDF5DF;
 }
 
 #categories {
@@ -34,23 +43,57 @@ body {
     height: 25px;
     width: 10%;
     border: none;
-    background-color: rgb(131, 175, 218);
+    background-color: #5EBEC4;
+    transition: ease-in-out 0.5s;
 }
 #categories button:hover {
     height: 25px;
     width: 10%;
     border: none;
-    background-color: rgb(111, 155, 198);
+    background-color: #F92C85;
 }
 
 #cvs {
     display: flex;
     flex-wrap: nowrap;
     flex-direction: column;
+    align-items: center;
+    padding-top: 30px;
 }
 
 footer {
     position: absolute;
     width: 100%;
     transform: translateY(1vh);
+}
+
+.cv{
+    border: 2px solid black;
+    border-radius: 50px;
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    transition: ease-in-out 2s ;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 10px;
+    background-color: #fffcf0;
+    opacity: 0;
+}
+
+.cv-transition{
+    opacity: 100%;
+    width: 70%;
+}
+.cv div{
+    border-top: 1px solid black;
+    width: 100%;
+    text-align: center;
+    text-overflow: clip;
+}
+
+.name-surname{
+    display: flex;
+    justify-content: space-around;
 }
