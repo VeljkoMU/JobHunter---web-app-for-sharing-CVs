@@ -15,13 +15,13 @@ cvRouter.get("/category", async (req,res)=>{
     }
     sqlQuery = `
     SELECT cv.name, cv.surname, cv.biography, cv.education, cv.employment_history, cv.email, cv.phone_number 
-    FROM CV  INNER JOIN category ON category.ID = CV.category
+    FROM CV JOIN category ON category.ID = cv.category
     WHERE category.NAME = "${cat}";  
     `;
 
     await getDataArray(`category:${cat}`, sqlQuery)
-    .then(val => val.json())
     .then(data =>{
+        console.log(data);
         res.json(data).end();
         return;
     })
@@ -46,43 +46,43 @@ cvRouter.put("/submit", async (req, res)=>{
     }
 
     // Provera da li dati user vec ima cv
-    await sql.query(`select cv.id from cv  inner join users on cv.id = users.cv where users.username= ${req.session.user}`, (err, rows, fileds)=>{
+    await sql.query(`select cv.id from cv inner join user on cv.id = user.cv where username= "${req.session.user}"`, async (err, rows, fileds)=>{
+        console.log(rows);
         if(rows.length!=0)
-            existringCv = rows[0];
-    });
+            existringCv = rows[0].id;
+    
 
     // Ako ima, updatujemo ga 
     if(existringCv){
         sqlUpdateQuery = `
             update cv set
-            name= ${req.body.name},
-            surname = ${req.body.surname},
-            biography = ${req.body.bio},
-            education = ${req.body.education},
-            employment_history = ${req.body.work},
-            email = ${req.body.email},
+            name= "${req.body.name}",
+           surname = "${req.body.surname}",
+            biography = "${req.body.bio}",
+            education = "${req.body.education}",
+            employment_history = "${req.body.work}",
+            email = "${req.body.email}",
             phone_number = ${req.body.num}
             where cv.id = ${existringCv};
         `;
 
-        mysql.query(sqlUpdateQuery);
+        sql.query(sqlUpdateQuery);
+        res.status(200).end();
+        return;
         // Vidi sta ces za dodavanje skillova
     }
     else{
         // Ako nema pravimo novi
         let categoryId = null;
-        sqlInsertIntoQuery = `
-            insert into cv  (name, surname, biography, education, employment_history, email, phone_number, category)
-            values (${req.body.name}, ${req.body.surname}, ${req.body.bio}, ${req.body.education}, ${req.body.work}, ${req.body.email}, ${req.body.num}, ${categoryId});
-        `;
+
 
         sqlGetCategoryId = `
-            select category.id from category where category.name = ${req.body.category};
+            select category.id from category where category.name = "${req.body.category}";
         `;
         let createCvId = null;
 
         // Provedi da li kategorija postoji i ako postoji dodaj je u cv
-        await sql.query(sqlGetCategoryId, (err, result, f)=>{
+        await sql.query(sqlGetCategoryId, async (err, result, f)=>{
             if(err){
                 console.log(err);
                 res.status(500).end();
@@ -94,11 +94,13 @@ cvRouter.put("/submit", async (req, res)=>{
                 return;
             }
 
-            categoryId = result[0];
-        });
-
-        // Dodaj cv u bazu i zapamti njegov id
-        await sql.query(sqlInsertIntoQuery, (err, result, f)=>{
+            categoryId = result[0].id;
+            console.log(categoryId);
+            sqlInsertIntoQuery = `
+            insert into cv  (name, surname, biography, education, employment_history, email, phone_number, category)
+            values ("${req.body.name}", "${req.body.surname}", "${req.body.bio}", "${req.body.education}", "${req.body.work}", "${req.body.email}", ${req.body.num}, ${categoryId});
+        `;
+        await sql.query(sqlInsertIntoQuery, async (err, result, f)=>{
             if(err){
                 console.log(err);
                 res.status(500).end();
@@ -106,13 +108,24 @@ cvRouter.put("/submit", async (req, res)=>{
             }
 
             createCvId = result.insertId;
+            await addSkillsToCv(req.body.skills, createCvId, res);
+
+            await sql.query(`update user set
+                            cv = ${createCvId}
+                            where username="${req.session.user}";
+                `);
+        });
         });
 
+        // Dodaj cv u bazu i zapamti njegov id
+
+
         // Funkcija koja dodaje skillove cv-u, ako postoje samo doaj u has_skill, ako ne postoje dodaj novi skill i povezi ga za cv
-        await addSkillsToCv(req.body.skills, createCvId, res);
+
 
         res.status(200).end();
     }
+});
 });
 
 cvRouter.get("/search", async (req, res)=>{
@@ -126,10 +139,9 @@ cvRouter.get("/search", async (req, res)=>{
     select * from (cv inner join has_skill
         on cv.id = has_skill.cv) inner join skill
         on has_skill.skill = skill.id
-        where skill.name = ${searchTerm}
+        where skill.name = "${searchTerm}";
     `;
-    await getDataArray(`skill:${searchTerm}`, SQLQuery)
-    .then(val=>val.json())
+    await getDataArray(`skill:${searchTerm}`, sqlQuery)
     .then(data=>{
         res.json(data).end();
         return;
@@ -141,6 +153,24 @@ cvRouter.get("/search", async (req, res)=>{
 
 });
 
+cvRouter.get("/getCv", async (req, res)=>{
+    if(!req.session.authorized){
+        res.status(403).end();
+        return;
+    }
+
+    console.log(req.session.user);
+    await sql.query(`select * from (cv inner join user on user.cv=cv.id) where user.username = "${req.session.user}";`, (err, result, f)=>{
+        if(err){
+            console.log(err);
+            res.status(500).end();
+            return;
+        }
+        console.log(result);
+        res.json(result[0]).end();
+        return;
+    });
+});
 async function getDataArray(redisKey, SQLQuery){
     // Uzima podatak iz redisa ili ako ga nema u redisu uzima iz sql-a i upisuje u redis
     return new Promise(async (resolve, reject)=>{
@@ -152,21 +182,24 @@ async function getDataArray(redisKey, SQLQuery){
             if(reply.length === 0){
                 await sql.query(SQLQuery, (err, rows, fileds)=>{
                     if(err)
-                        reject(err);
-                    console.log(rows);
+                        return reject(err);
+                    if(rows.length === 0)
+                        return reject("Ne postoji");
                     rows.forEach(row=> {
                         data.push(JSON.stringify(row));
                     });
-                    redisClient.lpush(redisKey, JSON.stringify(data));
+                    redisClient.lpush(redisKey, data);
                     redisClient.expire(redisKey, 60 * 5);
                     console.log("Cache-miss for " + redisKey);
-                });
 
-                return resolve(data);
+                    return resolve(data);
+                });
             }
+            else{
             data = reply;
             console.log("Cahche-hit for " + redisKey);
             return resolve(data);
+            }
         });
     });
 }
@@ -182,21 +215,18 @@ async function addSkillsToCv(skills, cvId, res){
     // Sara proveri ovu funkciju, nzm dal je dobar sql :(
     let skill = null;
     let skillId = null;
-    sqlGetSkillId = `
-        select skill.id from skill where skill.name = ${skill};
-    `;
-    sqlInsertSkill = `
-        insert into skill (name)
-        values (${skill});
-    `;
-    sqlLinkSkillToCv = `
-        insert into has_skill (cv, skill)
-        values (${cvId}, ${skillId});
-    `;
+
+
+
 
     await skills.forEach( async (s)=>{
+        console.log(s);
         skill = s;
 
+
+    sqlGetSkillId = `
+    select skill.id from skill where skill.name = "${skill}";
+    `;
         await sql.query(sqlGetSkillId, async (err, result, f)=>{
             if(err){
                 console.log(err);
@@ -205,27 +235,84 @@ async function addSkillsToCv(skills, cvId, res){
             }
 
             if(result.length===0){
+                sqlInsertSkill = `
+                insert into skill (name)
+                values ("${skill}");
+            `;
                 await  sql.query(sqlInsertSkill, async (err, resultSkill, f)=>{
+                    console.log(sqlInsertSkill);
                     if(err){
                         console.log(err);
                         res.status(500).end();
                         return;
                     }
 
-                    skillId = resultSkill.resultId;
+                    skillId = resultSkill.insertId;
+                    console.log(skillId);
+                    sqlLinkSkillToCv = `
+                    insert into has_skill (cv, skill)
+                    values (${cvId}, ${skillId});
+                `;
+                   await sql.query(sqlLinkSkillToCv);
                 });
             }
             else{
-                skillId = resultSkill[0];
+                skillId = result[0].id;
+                console.log(skillId);
+                sqlLinkSkillToCv = `
+                insert into has_skill (cv, skill)
+                values (${cvId}, ${skillId});
+            `;
+               await sql.query(sqlLinkSkillToCv);
             }
 
-           await sql.query(sqlLinkSkillToCv);
+
         });
     });
 }
 
-// treba da dodamo u ovaj fajl:
-// Funkciju za dodavanje i brisanje skilova u vec postojeci cv
+cvRouter.post("/skill", async (req, res)=>{
+    skill = req.body.skill;
+
+    if(req.session.authorized!=true){
+        res.status(403).end();
+        return;
+    }
+
+    await sql.query(`select cv.id from cv inner join user on cv.id = user.cv where user.username = "${req.session.user}"`, async (err, r, f)=>{
+        if(err){
+            res.status(500).end();
+            return;
+        }
+        console.log(r);
+        await addSkillsToCv([skill], r[0].id, res);
+    });
+
+    res.status(200).end();
+    return;
+});
+
+cvRouter.delete("/skill", async (req, res)=>{
+    skill = req.body.skill;
+
+    if(req.session.authorized!=true){
+        res.status(403).end();
+        return;
+    }
+
+    await sql.query(`select cv.id from cv inner join user on cv.id = user.cv where user.username = "${req.session.user}"`, async (err, r, f)=>{
+        if(err){
+            res.status(500).end();
+            return;
+        }
+
+        await sql.query(`delete from has_skill where cv = ${r[0].id} and skill = (select id from skill where name= "${skill}");`);
+    });
+
+    res.status(200).end();
+    return;
+});
+
 // Validaciju podataka iz bodija za sve
 // Da testiramo sve ovo jer meni ne radi sql
 
