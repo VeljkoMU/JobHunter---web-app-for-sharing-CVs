@@ -138,8 +138,8 @@ export class CvController{
         }).then(()=>alert("Your cv has been updated!"));
     }
 
-    addSkill(sk){
-        fetch("http://localhost:5500/skill", {
+    async addSkill(sk){
+        return fetch("http://localhost:5500/skill", {
             method: "POST",
             credentials: "include",
             mode: "cors",
@@ -162,11 +162,19 @@ export class CvController{
             credentials: "include",
             mode: "cors"
         })
-        .then(val=>{val.json();
-            console.log(val);
-        })
+        .then(val=>val.json())
         .then(data=> this.userCv=new cv(data.name, data.surname, data.phone_number, data.email, data.biography, data.education, data.employment_history, data.category))
         .catch(err=>alert(err));
+    }
+
+   async getAllUsersSkills(){
+        console.log("Evo Tu sam!");
+        return fetch("http://localhost:5500/getSkills", {
+            method: "GET",
+            credentials: "include",
+            mode: "cors"
+        });
+        
     }
 }
 

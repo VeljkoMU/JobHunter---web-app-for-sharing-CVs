@@ -8,19 +8,21 @@ const sql = require("../mysql");
 const cvRouter = express.Router();
 
 cvRouter.get("/category", async (req,res)=>{
-    let cat = req.query.category;
+    let cat = await req.query.category;
     if(!validateSearch(cat)){
         res.status(403).end();
         return;
     }
+    console.log(cat);
     sqlQuery = `
     SELECT cv.name, cv.surname, cv.biography, cv.education, cv.employment_history, cv.email, cv.phone_number 
     FROM CV JOIN category ON category.ID = cv.category
     WHERE category.NAME = "${cat}";  
     `;
-
+    console.log("tu sam!");
     await getDataArray(`category:${cat}`, sqlQuery)
     .then(data =>{
+        console.log("Tu sam!");
         console.log(data);
         res.json(data).end();
         return;
@@ -136,7 +138,7 @@ cvRouter.get("/search", async (req, res)=>{
     }
 
     sqlQuery = `
-    select * from (cv inner join has_skill
+    select cv.name, cv.surname, cv.biography, cv.education, cv.employment_history, cv.email, cv.phone_number from (cv inner join has_skill
         on cv.id = has_skill.cv) inner join skill
         on has_skill.skill = skill.id
         where skill.name = "${searchTerm}";
@@ -186,9 +188,9 @@ async function getDataArray(redisKey, SQLQuery){
                     if(rows.length === 0)
                         return reject("Ne postoji");
                     rows.forEach(row=> {
-                        data.push(JSON.stringify(row));
+                        data.push(row);
                     });
-                    redisClient.lpush(redisKey, data);
+                    redisClient.lpush(redisKey, JSON.stringify(data));
                     redisClient.expire(redisKey, 60 * 5);
                     console.log("Cache-miss for " + redisKey);
 
@@ -196,7 +198,7 @@ async function getDataArray(redisKey, SQLQuery){
                 });
             }
             else{
-            data = reply;
+            data = JSON.parse(reply);
             console.log("Cahche-hit for " + redisKey);
             return resolve(data);
             }
@@ -272,19 +274,20 @@ async function addSkillsToCv(skills, cvId, res){
 }
 
 cvRouter.post("/skill", async (req, res)=>{
-    skill = req.body.skill;
+    let skill = req.body.skill;
 
     if(req.session.authorized!=true){
         res.status(403).end();
         return;
     }
-
+    console.log(req.session.user);
     await sql.query(`select cv.id from cv inner join user on cv.id = user.cv where user.username = "${req.session.user}"`, async (err, r, f)=>{
         if(err){
             res.status(500).end();
             return;
         }
         console.log(r);
+        console.log(skill);
         await addSkillsToCv([skill], r[0].id, res);
     });
 
@@ -311,6 +314,25 @@ cvRouter.delete("/skill", async (req, res)=>{
 
     res.status(200).end();
     return;
+});
+
+cvRouter.get("/getSkills", async(req, res)=>{
+    let username = req.session.user;
+
+    await sql.query(`select skill.name from ((user 
+        inner join cv on
+        user.cv = cv.id) inner join has_skill
+        on cv.id = has_skill.cv) inner join skill on
+        skill.id = has_skill.skill
+        where user.username = "${username}";`, (err, result, f)=>{
+            if(err){
+                console.log(err);
+                res.status(500).end();
+                return;
+            }
+            console.log(result);
+            res.json(result).end();
+        });
 });
 
 // Validaciju podataka iz bodija za sve

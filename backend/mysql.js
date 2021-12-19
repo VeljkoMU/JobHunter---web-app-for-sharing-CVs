@@ -6,7 +6,7 @@ const connectionDB = mysql.createConnection({
     port: 3306,
     user: 'root',
     password: 'crusider23',
-    database: 'cv_projekat'
+    database: 'cv_project'
 });
 
 connectionDB.ping((err)=>console.log("Connected to db!"));

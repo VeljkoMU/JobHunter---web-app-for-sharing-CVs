@@ -8,8 +8,9 @@ sql = require("../mysql");
 const userRouter = express.Router();
 
 userRouter.post("/login", async (req, res)=>{
-    let username = await req.body.username;
-    let password = await req.body.password;
+    console.log("TU sam");
+    let username =  req.body.username;
+    let password =  req.body.password;
     console.log(username);
     await sql.query(`select * from user where username="${username}";`, (err, result, f)=>{
         if(err){
@@ -95,7 +96,8 @@ userRouter.post("/register", async (req,res)=>{
     await sql.query(`insert into user (username, password)
                     values ("${req.body.username}", "${md5(password).toString().slice(0,19)}");  
     `);
-
+    req.session.user = username;
+    req.session.authorized = true;
     res.status(200).end();
 });
 

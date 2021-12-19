@@ -8,17 +8,25 @@ const { REPL_MODE_SLOPPY } = require('repl');
 const session = require('express-session');
 const connectRedis = require('connect-redis');
 const md5 = require('md5');
+const cors = require('cors');
 
 const RedisSessionStore = connectRedis(session);
 
 const app = express();
-
+app.set("trust proxy", 1);
 // Provera dal je povezan na bazu
 redisClient.ping((err, rep)=> console.log(rep));
 mysql.ping((err)=>console.log("Connected to the MySQL database"));
 
 // Ignorisi ovo
 app.use(express.json());
+
+app.use(cors({
+    origin: "http://127.0.0.1:5500",
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+}));
+app.disable('etag');
 
 // Ovo je za session, objasnicu vam sta kako
 app.use(session({
