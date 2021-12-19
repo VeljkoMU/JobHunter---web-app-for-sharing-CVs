@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <header>
+           <div>CV-REP</div>
+        </header>
+
+        <div class="form">
+            <div class="cv-form">
+                <div class="user-div sub-form">
+                    <div class="small-input">
+                        <label>Username: </label>
+                        <input id="username">
+                    </div>
+                    <div class="small-input">
+                        <label>Password: </label>
+                        <input type = "password" id="password">
+                    </div>
+                    <div class="small-input">
+                        <label>Confirm Password: </label>
+                        <input type = "password" id="re-password">
+                    </div>
+                </div>
+
+                <div class = "sub-form">
+                    <div class="small-input">
+                        <label>Name: </label>
+                        <input id="name">
+                    </div>
+                    <div class="small-input">
+                        <label class="small-input">Surname: </label>
+                        <input id="surname">
+                    </div>
+                    <div class="small-input">
+                        <label class="small-input">Phone number: </label>
+                        <input id="num">
+                    </div>
+                    <div class="small-input">
+                        <label>Email: </label>
+                        <input id="email">
+                    </div>
+                    <div class="large-input">
+                        <label>Say something about yourself: </label>
+                        <textarea rows=10 cols=70 id="bio">
+                        </textarea>
+                    </div>
+                    <div class="large-input">
+                        <label>Education: </label>
+                        <textarea rows=10 cols=70 id="edu">
+                        </textarea>
+                    </div>
+                    <div class="large-input">
+                        <label>Employment history: </label>
+                        <textarea rows=10 cols=70 id="work">
+                        </textarea>
+                    </div>
+                    <div class="small-input">
+                        <label>Select your category: </label>
+                        <select id="category">
+                            <option value="it">it</option>
+                            <option value="management">management</option>
+                            <option value="service industry">service industry</option>
+                            <option value="medicine">medicine</option>
+                            <option value="education">education</option>
+                            <option value="science">science</option>
+                            <option value="sales">sales</option>
+                            <option value="banking">banking</option>
+                        </select>
+                    </div>
+                    <div class="large-input">
+                        <label>Add your skills here, each skill separated by a comma: </label>
+                        <input id="skills">
+                    </div>
+                    <button id="submit-cv">Submit</button>
+                </div>
+            </div>
+            
+        </div>
+        <footer>
+            <p>Lako do posla, nezaposlenju dosta!</p>
+            <p></p>
+        </footer>
+
+        <script src="./registration-page.js" type="module"></script>
+    </body>
+</html>

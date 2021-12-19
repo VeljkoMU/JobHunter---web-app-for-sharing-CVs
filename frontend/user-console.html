@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <header>
+           <div>CV-REP</div>
+        </header>
+
+        <div class="user-console">
+            <div class="form">
+            <div class="cv-form">
+                <div class="user-div sub-form">
+                    <div class="small-input">
+                        <label>Username: </label>
+                        <input id="username">
+                    </div>
+                    <div class="small-input">
+                        <label>Password: </label>
+                        <input type = "password" id="password">
+                    </div>
+                    <div class="small-input">
+                        <label>Confirm Password: </label>
+                        <input type = "password" id="re-password">
+                    </div>
+                </div>
+
+                <div class = "sub-form">
+                    <div class="small-input">
+                        <label>Name: </label>
+                        <input id="name">
+                    </div>
+                    <div class="small-input">
+                        <label class="small-input">Surname: </label>
+                        <input id="surname">
+                    </div>
+                    <div class="small-input">
+                        <label class="small-input">Phone number: </label>
+                        <input id="num">
+                    </div>
+                    <div class="small-input">
+                        <label>Email: </label>
+                        <input id="email">
+                    </div>
+                    <div class="large-input">
+                        <label>Say something about yourself: </label>
+                        <textarea rows=10 cols=70 id="bio">
+                        </textarea>
+                    </div>
+                    <div class="large-input">
+                        <label>Education: </label>
+                        <textarea rows=10 cols=70 id="edu">
+                        </textarea>
+                    </div>
+                    <div class="large-input">
+                        <label>Employment history: </label>
+                        <textarea rows=10 cols=70 id="work">
+                        </textarea>
+                    </div>
+                    <button id="submit-cv">Edit your CV</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="skill-edit">
+            <div class="skill-view">
+
+            </div>
+            <input id="skill-input">
+            <button id="skill-submit-btn"  disabled="true"> Add skill </button>
+        </div>
+        <button id="delete"> Delete my account </button>
+        </div>
+
+        <footer>
+            <p>Lako do posla, nezaposlenju dosta!</p>
+            <p></p>
+        </footer>
+
+        <script src="./user-console.js" type="module"></script>
+    </body>
+</html>

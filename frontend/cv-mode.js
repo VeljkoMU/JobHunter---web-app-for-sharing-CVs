@@ -12,6 +12,6 @@ export class cv{
     }
 
     addSkill(skill){
-        skill.push(skill);
+        this.skills.push(skill);
     }
 }

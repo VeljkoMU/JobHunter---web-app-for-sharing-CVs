@@ -4,12 +4,15 @@ import { CvView } from "./cv-view.js";
 export class CvController{
 
     constructor(searchInput, url, parent){
+        if(parent!=null){
         this.cvList = [];
         this.url = url;
         this.timeout=null;
         this.parent = parent;
         this.view = new CvView(this.parent, this.cvList);
         this.initSearchListener(searchInput);
+        this.userCv = null;
+        }
     }
 
     initSearchListener(input){
@@ -53,8 +56,120 @@ export class CvController{
         .catch(err=>this.view.clear());
     }
 
+    registerUserAndCreateCv(userData,cv){
+        fetch(`http://localhost:5500/users/register`, {
+            method: "POST",
+            credentials: "include",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username: userData.username,
+                password: userData.password
+            })
+        })
+        .then(()=>{
+            fetch(`http://localhost:5500/submit`, {
+                method: "PUT",
+                credentials: "include",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: cv.name,
+                    surname: cv.surname,
+                    num: cv.num,
+                    email: cv.email,
+                    bio: cv.bio,
+                    education: cv.edu,
+                    work: cv.work,
+                    category: cv.category,
+                    skills: []
+                })
+            })
+            .then(()=>{
+                cv.skills.forEach(s=>{
+                    fetch(`http://localhost:5500/skill`, {
+                        method: "POST",
+                        credentials: "include",
+                        mode: "cors",
+                        headers: {
+                            "Conent-Type": "application/json"
+                        },
+                        body: JSON.stringify(
+                            {
+                                skill: s
+                            }
+                        )
+                    }).catch((err)=>{
+                        console.log(err);
+                        alert("Greska u registrciji!");
+                    })
+                })
+            }).catch((err)=>{
+                console.log(err);
+                alert("Greska u registrciji!");
+            })
+        }).catch((err)=>{
+            console.log(err);
+            alert("Greska u registrciji!");
+        })
+    }
+
+    updateCv(cv){
+        fetch("http://localhost:5500/submit", {
+            method: "PUT",
+            credentials: "include",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: cv.name,
+                surname: cv.surname,
+                num: cv.num,
+                email: cv.email,
+                bio: cv.bio,
+                education: cv.edu,
+                work: cv.work
+            })
+        }).then(()=>alert("Your cv has been updated!"));
+    }
+
+    addSkill(sk){
+        fetch("http://localhost:5500/skill", {
+            method: "POST",
+            credentials: "include",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                skill: sk
+            })
+        });
+    }
 
     addCv(cv){
         this.cvList.push(cv);
     }
+
+    async getUsersCv(){
+        return fetch("http://localhost:5500/getCv", {
+            method: "GET",
+            credentials: "include",
+            mode: "cors"
+        })
+        .then(val=>{val.json();
+            console.log(val);
+        })
+        .then(data=> this.userCv=new cv(data.name, data.surname, data.phone_number, data.email, data.biography, data.education, data.employment_history, data.category))
+        .catch(err=>alert(err));
+    }
 }
+
+//dodaj validaciju
+//otvaranje stranice druge
+//resi dodavanej skillova glupih
