@@ -90,23 +90,11 @@ export class CvController{
                 })
             })
             .then(()=>{
-                cv.skills.forEach(s=>{
-                    fetch(`http://localhost:5500/skill`, {
-                        method: "POST",
-                        credentials: "include",
-                        mode: "cors",
-                        headers: {
-                            "Conent-Type": "application/json"
-                        },
-                        body: JSON.stringify(
-                            {
-                                skill: s
-                            }
-                        )
-                    }).catch((err)=>{
-                        console.log(err);
-                        alert("Greska u registrciji!");
-                    })
+                cv.skills.forEach((s)=>{
+                    console.log(s);
+                    setTimeout(()=>{
+                    this.addSkill(s);
+                    }, 1000);
                 })
             }).catch((err)=>{
                 console.log(err);

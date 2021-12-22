@@ -110,7 +110,7 @@ cvRouter.put("/submit", async (req, res)=>{
             }
 
             createCvId = result.insertId;
-            await addSkillsToCv(req.body.skills, createCvId, res);
+           // await addSkillsToCv(req.body.skills, createCvId, res);
 
             await sql.query(`update user set
                             cv = ${createCvId}
@@ -288,7 +288,7 @@ cvRouter.post("/skill", async (req, res)=>{
         }
         console.log(r);
         console.log(skill);
-        await addSkillsToCv([skill], r[0].id, res);
+        await addSkillsToCv([req.body.skill], r[0].id, res);
     });
 
     res.status(200).end();

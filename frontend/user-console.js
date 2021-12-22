@@ -25,8 +25,11 @@ bio.value = cvController.userCv.bio;
 let updateBtn = document.querySelector("#submit-cv");
 
 updateBtn.onclick = (ev)=>{
-    cvController.updateCv(new cv(nameinput.value, surnameinput.value, num.value, email.value, bio.value, edu.value, work.value, null))
-};
+    if(checkValidation(nameinput.value, surnameinput.value, num.value, work.value, edu.value, email.value, bio.value))
+        cvController.updateCv(new cv(nameinput.value, surnameinput.value, num.value, email.value, bio.value, edu.value, work.value, null))
+    else
+        alert("Please insert valid data!");
+    };
 
 let skillsDiv = document.querySelector(".skill-view");
 
@@ -65,4 +68,31 @@ skillAddBtn.onclick = (ev)=>{
 };
 });
 
-//zavrsi ovo vise!
+
+let deletBtn = document.querySelector("#delete");
+
+deletBtn.onclick = (ev)=>{
+    fetch("http://localhost:5500/users/deleteUser", {
+        method: "DELETE",
+        credentials: "include",
+        mode: "cors"
+    }).then((res)=>{
+            window.open("http://127.0.0.1:5500/main.html");
+    })
+};
+
+function checkValidation(namee, surname, num, work, edu, email, bio) {
+        if (!(namee, surname, num &&  work &&  edu &&  email &&  bio)){
+            console.log("Padam1!");
+            return false;
+        }
+    if (!/[0-9]+/.test(num)){
+        console.log("Padam12");
+        return false;
+    }
+    if(!/.+@.+\.com/.test(email)){
+        console.log("Padam13");
+        return false;
+    }
+    return true;
+ }
