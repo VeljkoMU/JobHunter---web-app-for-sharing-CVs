@@ -1,0 +1,41 @@
++++++CREATE TABLE++++++++
+
+CREATE TABLE skill ( id integer PRIMARY key AUTO_INCREMENT,
+                    name varchar(15) NOT NULL);
+
+CREATE TABLE category ( id integer PRIMARY key AUTO_INCREMENT,
+                        name varchar(15) NOT NULL);
+                        
+CREATE TABLE cv ( id integer PRIMARY key AUTO_INCREMENT,
+                 name varchar(15) NOT NULL,
+                 surname varchar(20) NOT NULL,
+                 biography varchar(500) NOT NULL,
+                 education varchar(50) NOT NULL,
+                 employment_history varchar(100) NOT NULL,
+                 email varchar(20) NOT NULL,
+                 phone_number integer NOT NULL,
+                 category integer,
+                 CONSTRAINT FK_category FOREIGN key (category) REFERENCES category(id));
+
+CREATE TABLE user ( id integer PRIMARY key AUTO_INCREMENT,
+                    username varchar(15) NOT NULL,
+                    password varchar(20) NOT NULL,
+                    cv integer,
+                    CONSTRAINT FK_cv FOREIGN key (cv) REFERENCES cv(id));
+                    
+CREATE TABLE has_skill ( id integer PRIMARY key AUTO_INCREMENT,
+                        cv integer,
+                        skill integer,
+                        constraint FK_cvv FOREIGN key (cv) REFERENCES cv(id),
+                 	    constraint FK_skill FOREIGN key (skill) REFERENCES skill(id));
+
+++++++INSERT INTO CATEGORY++++++++++
+
+INSERT INTO category (name) values ('IT');
+INSERT INTO category (name) values ('Management');
+INSERT INTO category (name) values ('Medicine');
+Industry INSERT INTO category (name) values ('Service');
+INSERT INTO category (name) values ('Education');
+INSERT INTO category (name) values ('Science');
+INSERT INTO category (name) values ('Sales');
+INSERT INTO category (name) values ('Banking');
