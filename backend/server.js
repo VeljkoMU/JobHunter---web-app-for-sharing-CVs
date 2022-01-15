@@ -52,6 +52,3 @@ app.listen(5500, ()=>console.log("Listening on port: " + 5500));
 
 
 
-// Popravi dodavanj niza skillova
-//Dodaj logout kada se obrise account
-//Dodaj URL koji ces da gadajs za pribavljanje liste skillova

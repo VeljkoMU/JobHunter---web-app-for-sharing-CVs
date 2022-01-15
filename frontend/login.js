@@ -22,7 +22,6 @@ btn.onclick = (ev)=>{
     }).then(res=>{
         if(res.ok){
             //otvori novu stranicu
-            alert("Radi!");
             window.open("http://127.0.0.1:5500/user-console.html");
         }
     })
